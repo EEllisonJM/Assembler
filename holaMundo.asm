@@ -2,28 +2,27 @@
 ;Imprime 'HOLA MUNDO' en pantalla
 
 .286
-pila SEGMENT STACK
+sPila SEGMENT STACK
     DB 32 DUP('STACK---')
-pila ENDs
+sPila ENDs
 
-datos SEGMENT	
+sDatos SEGMENT	
     msj   DB 0DH, 0AH, 'HOLA MUNDO $'
-datos ENDs
+sDatos ENDs
 
-codigo SEGMENT 'CODE'
-    ASSUME SS:pila, DS:datos, CS:codigo
-    main PROC FAR
-	
+sCodigo SEGMENT 'CODE'
+    ASSUME SS:sPila, DS:sDatos, CS:sCodigo		
+    main PROC FAR	
         PUSH DS
         PUSH 0
-        MOV AX, datos
+        MOV AX, sDatos
         MOV DS, AX
 		
-		lea dx, msj
-		mov ah, 09h
-		int 21h	
+		LEA DX, msj
+		MOV AH, 09h
+		INT 21h	
 	
 		RET
     main ENDp
-codigo ENDs
+sCodigo ENDs
 END main

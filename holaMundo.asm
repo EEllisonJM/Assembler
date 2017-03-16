@@ -18,11 +18,11 @@ sCodigo SEGMENT 'CODE'
         MOV AX, sDatos
         MOV DS, AX
 		
-		LEA DX, msj
-		MOV AH, 09h
-		INT 21h	
+	LEA DX, msj
+	MOV AH, 09h
+	INT 21h	
 	
-		RET
+	RET
     main ENDp
 sCodigo ENDs
 END main

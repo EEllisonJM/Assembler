@@ -17,6 +17,7 @@ sPila ENDs ; Fin segmento de Pila
 sDatos SEGMENT ; Inicio segmento de Datos
 	opciones DB 0DH, 0AH,  '1 -> Continuar', 0DH, 0AH, '2 -> Ordenar de forma ascendente',0DH, 0AH, '3 -> Ordenar de forma descendente',0DH, 0AH,'4 -> Salir ',0DH, 0AH,'$'
     msj   	 DB 0DH, 0AH,  'Ingrese dato : $'
+	msjOpcion DB 0DH, 0AH,  'Opcion: $'
     msjMayor DB 0DH, 0AH,  'El mayor es :  $'
 	msjMenor DB 0DH, 0AH,  'El menor es :  $'
     arreSalto DB 0DH, 0AH
@@ -30,8 +31,14 @@ sCodigo SEGMENT 'CODE' ; Inicio segmento de Codigo
         PUSH 0
         MOV AX, sDatos 
         MOV DS, AX ; 
+		
+		;MOV ES,AX
 
 Ciclo_Continuar_Salir:
+		;Clear screen (Limpiar pantalla)
+		mov ah,0
+		mov al,0
+		int 10h
 ;----------------PRINT(Ingrese dato : )------------------------------------------------------
 		MOV AH, 09H ; Funcion 09H -> Visualización de una cadena de caracteres
 		LEA DX, msj ; Cadena a visualizar [msg = Ingrese dato: ]		
@@ -89,15 +96,26 @@ menor_encontrado :
 		MOV DL, AL ; Código ASCII a enviar al dispositivo de salida [DL] - [AL Contiene el mayor]
 		MOV AH,02H ; Función 02H -> Salida de Carácter 
 		INT 21H ; Interrupcion del DOS
+		
 Menu:
 ;----------------PRINT(1 -> Continuar)---------------------------------------------------
 ;----------------PRINT(2 -> Ordenar de forma ascendente)---------------------------------
 ;----------------PRINT(3 -> Ordenar de forma descendente)--------------------------------
-;----------------PRINT(4 -> Salir )------------------------------------------------------
+;----------------PRINT(4 -> Salir )------------------------------------------------------	
 		LEA DX,opciones
 		MOV AH,09h
-		INT 21H
+		INT 21H		
 ;----------------READ( _ )---OPCIONES---------------------------------------------------	
+		lea dx, msjOpcion
+		int 21h
+	MenuAux:	
+		;Mover cursor
+		mov ah,02h
+		mov dh,9 ; Filas
+		mov dl,8 ; Columnas
+		;mov bh,0
+		int 10h
+
 		MOV AH, 01H
 		INT 21H
 		SUB AL, 30H ; Convertir caracter a numero en decimal [ASCII]
@@ -111,7 +129,7 @@ Menu:
 		CMP AL , 4
 			JE Salirse	; AL==4? [ True:= Salta a etiqueta Salirse]
 		; Cualquier otra opcion
-			JMP Menu ; [Salta a etiqueta Menu]
+			JMP MenuAux ; [Salta a etiqueta Menu]
 ;------------------------------------------------		
 OrdenAscendente:
 		MOV BX,0 ; Funcion Pivote
@@ -141,7 +159,7 @@ Ordenado:
 		MOV AH,09
 		LEA DX,arreSalto
 		INT 21H		
-			JMP Menu
+			JMP MenuAux
 ;------------------------------------------------
 OrdenDescendente:
 		MOV BX,0		
@@ -171,10 +189,11 @@ Ordenado2:
 		MOV ah,09
 		lea dx,arreSalto ; ARREGLO con salto incluido
 		int 21h		
-			jmp Menu		
+			jmp MenuAux	
 Salirse:
 		RET ; Retorno al procedimiento mas cercano [Al OS:=Sistema Operativo]
 		
 	main ENDp ; Fin procedimiento FAR	
 sCodigo ENDs ; Fin segmento de Codigo
 END main
+

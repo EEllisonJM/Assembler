@@ -1,0 +1,74 @@
+;LLENAR 2 ARREGLOS (CADENAS)
+;TAMAÑO DE CADENA1=5
+;TAMAÑO DE CADENA2=6
+;MOVER CADENA1 A CADENA2 (IZQUIERDA A DERECHA)
+;
+.286
+pila SEGMENT STACK
+    DB 32 DUP('STACK---')
+pila ENDs
+
+datos SEGMENT    
+	cad1 db 5 DUP(?),'$'
+	cad2 db 6 DUP(?),'$'
+	salto   DB 0DH, 0AH, '$'	
+datos ENDs
+
+codigo SEGMENT 'CODE'
+    ASSUME SS:pila, DS:datos, CS:codigo
+    main PROC FAR        
+        PUSH DS
+        PUSH 0
+        MOV AX, datos
+        MOV DS, AX		
+		MOV ES,AX;SEGMENTO EXTRA
+	    
+		MOV SI,0
+ciclo:
+		;ReadCharacter(...)
+		MOV AH,01H
+		INT 21H
+		CMP AL,0DH ;(0AH) -> TECLA INTRO
+			JE salir
+		
+		MOV cad1[SI],AL
+		INC SI
+		CMP SI,5
+			JAE salir
+			JMP ciclo
+salir:
+		;Print(salto)
+		MOV AH , 09h
+			LEA DX,salto
+		INT 21H
+
+		MOV SI,0
+	
+ciclo2:
+		;ReadCharacter(...)
+		MOV AH,01h
+		INT 21H
+		CMP AL,0DH ;(0AH) -> TECLA INTRO
+			JE  salir2		
+		MOV cad2[SI],AL
+		INC SI
+		CMP SI,6
+			JAE salir2
+		JMP ciclo2
+salir2:		
+	CLD; Izquierda a derecha -> [STD; derecha a Izquierda]
+		MOV SI, offset cad1 ;Mover contenido de cadena1
+		MOV DI, offset cad2	 ; a cadena2
+		MOV CX,lengthof cad1 
+			REP MOVSB ; Repite n veces el valor (CX)
+;Imprimir_cadena:	
+		MOV AH , 09h
+			LEA DX,salto
+		INT 21H
+			LEA DX,cad2
+		INT 21H
+
+RET
+    main ENDp
+codigo ENDs
+END main	
